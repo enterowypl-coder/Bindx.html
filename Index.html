@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walentynka ❤️ - Matrix Mode</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #ffdee9;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background: black;
+            z-index: 1;
+        }
+
+        .card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+            z-index: 10;
+        }
+
+        h1 { color: #d63384; font-size: 1.5rem; margin-bottom: 30px; }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            min-width: 100px;
+        }
+
+        #yesBtn { background: #ff4d6d; color: white; }
+        #noBtn { background: #adb5bd; color: white; }
+
+        #matrixMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0F0;
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            text-align: center;
+            z-index: 100;
+            display: none;
+            text-shadow: 0 0 10px #0F0;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrixCanvas"></canvas>
+    <div id="matrixMessage">SYSTEM ERROR:<br>Wybór "NIE" nie istnieje.</div>
+
+    <div class="card" id="mainCard">
+        <div style="font-size: 60px; margin-bottom: 10px;">❤️</div>
+        <h1 id="question">Zostaniesz moją Walentynką?</h1>
+        <div class="btn-group">
+            <button id="yesBtn" onclick="celebrate()">TAK!</button>
+            <button id="noBtn" onmouseover="triggerMatrix()" onclick="triggerMatrix()">NIE</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        let matrixActive = false;
+
+        function triggerMatrix() {
+            if(matrixActive) return;
+            matrixActive = true;
+
+            // Całkowite ukrycie karty
+            document.getElementById('mainCard').style.display = 'none';
+            
+            // Włączenie Matrixa
+            document.getElementById('matrixCanvas').style.display = 'block';
+            document.getElementById('matrixMessage').style.display = 'block';
+            
+            startMatrixEffect();
+        }
+
+        function celebrate() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            document.getElementById('question').innerHTML = "Wiedziałem! 🥰";
+            document.getElementById('noBtn').style.display = 'none';
+            document.getElementById('yesBtn').style.width = '100%';
+            document.getElementById('yesBtn').innerHTML = "CUDOWNIE! ❤️";
+        }
+
+        function startMatrixEffect() {
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const letters = "01010101010101010101010101010101";
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+
+            function draw() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#0F0";
+                ctx.font = fontSize + "px monospace";
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                }
+            }
+            setInterval(draw, 33);
+        }
+
+        window.addEventListener('resize', () => {
+            if(matrixActive) {
+                const canvas = document.getElementById('matrixCanvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        });
+    </script>
+</body>
+</html>
